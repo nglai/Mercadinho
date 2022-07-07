@@ -1,4 +1,4 @@
-const { select, selectById, insert, update, deletar } = require('./service')
+const { select, selectById, insert, update, deletar } = require('../utils/service')
 
 //SELECT ALL
 async function selectAllProfiles(req, res) {
@@ -72,6 +72,29 @@ async function insertProducts(req, res) {
     }
 }
 
+//Insert Object
+async function insert2(req, res) {
+    try {
+        const colunas = Object.keys(req.body[0]) //[ 'CPF', 'PASSWORD', 'PROFILE_ID' ]
+        const valores = Object.values(req.body) //[ { CPF: '12345678912', PASSWORD: '123456', PROFILE_ID: 1 } ]
+        await insert('users', colunas, valores)
+        res.status(201).send('Inserido')
+    } catch (error) {
+        res.status(500).send({ error: error })
+    }
+}
+
+async function insert3(req, res) {
+    try {
+        const colunas = Object.keys(req.body[0])
+        const valores = Object.values(req.body)
+        await insert('products', colunas, valores)
+        res.status(201).send('Inserido')
+    } catch (error) {
+        res.status(500).send({ error: error })
+    }
+}
+
 //UPDATE
 async function updateProfiles(req, res) {
     try {
@@ -137,4 +160,4 @@ async function deleteProducts(req, res) {
     }
 }
 
-module.exports = { selectAllProfiles, selectAllUsers, selectAllProducts, selectByIdProfiles, selectByIdUsers, selectByIdProducts, insertProfiles, insertUsers, insertProducts, updateProfiles, updateUsers, updateProducts, deleteProfiles, deleteUsers, deleteProducts }
+module.exports = { selectAllProfiles, selectAllUsers, selectAllProducts, selectByIdProfiles, selectByIdUsers, selectByIdProducts, insertProfiles, insertUsers, insertProducts, updateProfiles, updateUsers, updateProducts, deleteProfiles, deleteUsers, deleteProducts, insert2, insert3 }

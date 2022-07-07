@@ -28,10 +28,29 @@ async function selectById(nomeTabela, id) {
 }
 
 // INSERT
+// async function insert(nomeTabela, colunas, valores) {
+//     try {
+//         const valor = '"' + valores.join('","') + '"'
+//         await promisePool.query(`INSERT INTO ${nomeTabela} (${colunas}) VALUES (${valor})`)
+//         console.log('Inserido com sucesso!')
+//     } catch (error) {
+//         console.log(error)
+//     }
+// }
 async function insert(nomeTabela, colunas, valores) {
     try {
-        const valor = '"' + valores.join('","') + '"'
-        await promisePool.query(`INSERT INTO ${nomeTabela} (${colunas}) VALUES (${valor})`)
+        //Colunas [ 'NAME', 'ID' ]
+        //Valores [ { NAME: 'Chave 1', ID: 4 }, { NAME: 'Chave 2', ID: 5 } ]
+
+        const values = []  //[ [ 'Chave 1', 4 ], [ 'Chave 2', 5 ] ]
+
+        for (let index = 0; index < valores.length; index++) {
+            let valor  = Object.values(valores[index])
+            const valor2 = '("' + valor.join('","') + '")'
+            values.push(valor2)
+        }
+        
+        await promisePool.query(`INSERT INTO ${nomeTabela} (${colunas}) VALUES ${values}`)
         console.log('Inserido com sucesso!')
     } catch (error) {
         console.log(error)
