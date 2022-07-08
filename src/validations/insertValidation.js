@@ -1,12 +1,12 @@
 const yup = require('yup')
 
-let profileSchema = yup.object().shape({
+let insertProfileSchema = yup.object().shape({
     NAME: yup
         .string()
         .required("O nome é obrigatório")
 });
 
-let usersSchema = yup.object().shape({
+let insertUsersSchema = yup.object().shape({
     CPF: yup
         .string()
         .required("O CPF é obrigatório")
@@ -22,7 +22,7 @@ let usersSchema = yup.object().shape({
         .integer("O id profile deve ser um número inteiro")
 });
 
-let productsSchema = yup.object().shape({
+let insertProductsSchema = yup.object().shape({
     DESCRIPTION: yup
         .string()
         .required("A descrição é obrigatória")
@@ -44,19 +44,19 @@ let productsSchema = yup.object().shape({
         .integer("A quantidade deve ser um número inteiro")
 });
 
-let paymentMethodSchema = yup.object().shape({
+let insertPaymentMethodSchema = yup.object().shape({
     PAYMENT_TYPE: yup
         .string()
         .required("O tipo do pagamento é obrigatório")
 });
 
-let checkoutStatusSchema = yup.object().shape({
+let insertCheckoutStatusSchema = yup.object().shape({
     SITUATION: yup
         .string()
         .required("A situação do checkout é obrigatória")
 });
 
-let checkoutSchema = yup.object().shape({
+let insertCheckoutSchema = yup.object().shape({
     TOTAL: yup
         .number()
         .required("O valor total é obrigatório")
@@ -73,7 +73,7 @@ let checkoutSchema = yup.object().shape({
         .integer("O id do status do checkout deve ser um número inteiro")
 });
 
-let checkoutProductSchema = yup.object().shape({
+let insertCheckoutProductSchema = yup.object().shape({
     PRODUCT_ID: yup
         .number()
         .required("O id do metodo de pagamento é obrigatório")
@@ -95,4 +95,4 @@ let checkoutProductSchema = yup.object().shape({
         .positive("O preço deve ser positivo"),
 });
 
-module.exports = {profileSchema, usersSchema, productsSchema}
+module.exports = {insertProfileSchema, insertUsersSchema, insertProductsSchema}
