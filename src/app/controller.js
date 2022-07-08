@@ -78,7 +78,8 @@ async function insertProducts(req, res) {
 //UPDATE
 async function updateProfiles(req, res) {
     try {
-        const { colunas, valores } = req.body
+        const colunas = Object.keys(req.body[0])
+        const valores = Object.values(req.body[0])
         const { id } = req.params
         await update('profiles', colunas, valores, id)
         res.status(200).send('Atualizado')
@@ -89,7 +90,8 @@ async function updateProfiles(req, res) {
 
 async function updateUsers(req, res) {
     try {
-        const { colunas, valores } = req.body
+        const colunas = Object.keys(req.body[0])
+        const valores = Object.values(req.body[0])
         const { id } = req.params
         await update('users', colunas, valores, id)
         res.status(200).send('Atualizado')
@@ -100,7 +102,8 @@ async function updateUsers(req, res) {
 
 async function updateProducts(req, res) {
     try {
-        const { colunas, valores } = req.body
+        const colunas = Object.keys(req.body[0])
+        const valores = Object.values(req.body[0])
         const { id } = req.params
         await update('products', colunas, valores, id)
         res.status(200).send('Atualizado')

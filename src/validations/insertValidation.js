@@ -4,6 +4,7 @@ let insertProfileSchema = yup.object().shape({
     NAME: yup
         .string()
         .required("O nome é obrigatório")
+        .min(5, "O nome deve ter no mínimo 5 caracteres")
 });
 
 let insertUsersSchema = yup.object().shape({
@@ -14,7 +15,8 @@ let insertUsersSchema = yup.object().shape({
         .max(11, "O CPF de ter 11 caracteres"),
     PASSWORD: yup
         .string()
-        .required("A senha é obrigatória"),
+        .required("A senha é obrigatória")
+        .min(8, "A senha deve ter no mínimo 8 caracteres"),
     PROFILE_ID: yup
         .number()
         .required("O id profile é obrigatório")
