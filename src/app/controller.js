@@ -100,9 +100,14 @@ async function updateProfiles(req, res) {
 
 async function updateUsers(req, res) {
     try {
-        const colunas = Object.keys(req.body[0])
-        const valores = Object.values(req.body[0])
         const { id } = req.params
+        const colunas = Object.keys(req.body[0])
+
+        const novaSenha = await hash(Object.values(req.body)[0]['PASSWORD'])
+        const values = req.body.map(item => ({...item, PASSWORD: novaSenha}))
+        
+        const valores = Object.values(values[0])
+
         await update('users', colunas, valores, id)
         res.status(200).send('Atualizado')
     } catch (error) {
