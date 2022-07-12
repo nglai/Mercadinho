@@ -1,4 +1,5 @@
 const { select, selectById, insert, update, deletar } = require('../utils/service')
+const {hash} = require('./../utils/hashPassword')
 
 //SELECT ALL
 async function selectAllProfiles(req, res) {
@@ -57,7 +58,16 @@ async function insertUsers(req, res) {
     try {
         const colunas = Object.keys(req.body[0]) //[ 'CPF', 'PASSWORD', 'PROFILE_ID' ]
         const valores = Object.values(req.body) //[ { CPF: '12345678912', PASSWORD: '123456', PROFILE_ID: 1 } ]
-        await insert('users', colunas, valores)
+        
+        const senhas = []
+        for (let index = 0; index < valores.length; index++) {
+            const novaSenha = await hash(Object.values(req.body)[index]['PASSWORD'])
+            senhas.push(novaSenha)
+        }
+
+        const values = req.body.map((item, indice) => ({...item, PASSWORD: senhas[indice]}))
+
+        await insert('users', colunas, values)
         res.status(201).send('Inserido')
     } catch (error) {
         res.status(500).send({ error: error })
