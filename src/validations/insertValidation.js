@@ -8,6 +8,10 @@ let insertProfileSchema = yup.object().shape({
 });
 
 let insertUsersSchema = yup.object().shape({
+    NAME: yup
+        .string()
+        .required("O nome é obrigatório")
+        .min(5, "O nome deve ter no mínimo 2 caracteres"),
     CPF: yup
         .string()
         .required("O CPF é obrigatório")

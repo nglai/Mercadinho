@@ -7,6 +7,9 @@ let updateProfileSchema = yup.object().shape({
 });
 
 let updateUsersSchema = yup.object().shape({
+    NAME: yup
+        .string()
+        .min(5, "O nome deve ter no mínimo 2 caracteres"),
     CPF: yup
         .string()
         .min(11, "O CPF deve ter 11 caracteres")

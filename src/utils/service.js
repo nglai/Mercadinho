@@ -11,17 +11,17 @@ const pool = mysql.createPool({
 const promisePool = pool.promise();
 
 // SELECT
-async function select(nomeTabela) {
+async function select(colunas, nomeTabela) {
     //abstração de array [posição]
-    const [data] = await promisePool.query(`select * from ${nomeTabela}`);
+    const [data] = await promisePool.query(`SELECT ${colunas} FROM ${nomeTabela}`);
     return data
 }
 
 //SELECT BY ID
-async function selectById(nomeTabela, id) {
+async function selectById(colunas, nomeTabela, id) {
     try {
         //abstração de array [posição]
-        const [data] = await promisePool.query(`SELECT * FROM ${nomeTabela} WHERE ID=${id}`);
+        const [data] = await promisePool.query(`SELECT ${colunas} FROM ${nomeTabela} WHERE ID=${id}`);
         return data;
     } catch (error) {
         console.log(error)

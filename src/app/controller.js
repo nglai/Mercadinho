@@ -1,24 +1,26 @@
 const { select, selectById, insert, update, deletar } = require('../utils/service')
 const {hash} = require('./../utils/hashPassword')
 
+const userColunas = 'ID, NAME, PROFILE_ID, CREATED_USER, CREATED_AT, LAST_UPDATED_USER, LAST_UPDATED_AT'
+
 //SELECT ALL
 async function selectAllProfiles(req, res) {
-    res.status(200).send(await select('profiles'))
+    res.status(200).send(await select("*","profiles"))
 }
 
 async function selectAllUsers(req, res) {
-    res.status(200).send(await select('users'))
+    res.status(200).send(await select(userColunas, "users"))
 }
 
 async function selectAllProducts(req, res) {
-    res.status(200).send(await select('products'))
+    res.status(200).send(await select("*", "products"))
 }
 
 //SELECT BY ID
 async function selectByIdProfiles(req, res) {
     try {
         const { id } = req.params
-        res.status(200).send(await selectById("profiles", id))
+        res.status(200).send(await selectById("*", "profiles", id))
     } catch (error) {
         res.status(500).send({ error: error })
     }
@@ -27,7 +29,7 @@ async function selectByIdProfiles(req, res) {
 async function selectByIdUsers(req, res) {
     try {
         const { id } = req.params
-        res.status(200).send(await selectById("users", id))
+        res.status(200).send(await selectById(userColunas, "users", id))
     } catch (error) {
         res.status(500).send({ error: error })
     }
@@ -36,7 +38,7 @@ async function selectByIdUsers(req, res) {
 async function selectByIdProducts(req, res) {
     try {
         const { id } = req.params
-        res.status(200).send(await selectById("products", id))
+        res.status(200).send(await selectById("*", "products", id))
     } catch (error) {
         res.status(500).send({ error: error })
     }
@@ -105,7 +107,7 @@ async function updateUsers(req, res) {
 
         const novaSenha = await hash(Object.values(req.body)[0]['PASSWORD'])
         const values = req.body.map(item => ({...item, PASSWORD: novaSenha}))
-        
+
         const valores = Object.values(values[0])
 
         await update('users', colunas, valores, id)
