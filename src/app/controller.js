@@ -1,7 +1,8 @@
 const { select, selectById, insert, update, deletar } = require('../utils/service')
+require('dotenv').config()
 const {hash} = require('./../utils/hashPassword')
 
-const userColunas = 'ID, NAME, PROFILE_ID, CREATED_USER, CREATED_AT, LAST_UPDATED_USER, LAST_UPDATED_AT'
+const userColunas = process.env.USERCOLUNAS
 
 //SELECT ALL
 async function selectAllProfiles(req, res) {
@@ -105,10 +106,16 @@ async function updateUsers(req, res) {
         const { id } = req.params
         const colunas = Object.keys(req.body[0])
 
-        const novaSenha = await hash(Object.values(req.body)[0]['PASSWORD'])
-        const values = req.body.map(item => ({...item, PASSWORD: novaSenha}))
-
-        const valores = Object.values(values[0])
+        let valores;
+        if(Object.values(req.body)[0]['PASSWORD']){
+            const novaSenha = await hash(Object.values(req.body)[0]['PASSWORD'])
+            const values = req.body.map(item => ({...item, PASSWORD: novaSenha}))
+            const novosValores = Object.values(values[0])
+            valores = novosValores
+        } else {
+            const novosValores = Object.values(req.body[0])
+            valores = novosValores
+        }
 
         await update('users', colunas, valores, id)
         res.status(200).send('Atualizado')
