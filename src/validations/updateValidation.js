@@ -26,7 +26,7 @@ let updateUsersSchema = yup.object().shape({
 let updateProductsSchema = yup.object().shape({
     DESCRIPTION: yup
         .string()
-        .min(11, "A descrição deve ter pelo menos 8 caracteres"),
+        .min(5, "A descrição deve ter pelo menos 5 caracteres"),
     BRAND: yup
         .string(),
     CATEGORY: yup

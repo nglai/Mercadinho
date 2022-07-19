@@ -1,5 +1,5 @@
 const express = require('express')
-const { selectAllProducts, selectByIdProducts, insertProducts, updateProducts, deleteProducts } = require('../controller')
+const { selectAllProducts, selectByIdProducts, selectByDescriptionProducts, insertProducts, updateProducts, deleteProducts } = require('../controller')
 
 const { insertProductsSchema} = require('../../validations/insertValidation')
 const { updateProductsSchema} = require('../../validations/updateValidation')
@@ -10,6 +10,8 @@ const ProductsRouter = express.Router();
 ProductsRouter.get('/products', selectAllProducts)
 
 ProductsRouter.get('/products/:id', selectByIdProducts)
+
+ProductsRouter.get('/productsdesc', selectByDescriptionProducts)
 
 ProductsRouter.post('/products', validation(insertProductsSchema), insertProducts)
 

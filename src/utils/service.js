@@ -17,11 +17,11 @@ async function select(colunas, nomeTabela) {
     return data
 }
 
-//SELECT BY ID
-async function selectById(colunas, nomeTabela, id) {
+//SELECT WHERE
+async function selectWhere(colunas, nomeTabela, condicaoColuna, operador, condicaoValor) {
     try {
         //abstração de array [posição]
-        const [data] = await promisePool.query(`SELECT ${colunas} FROM ${nomeTabela} WHERE ID=${id}`);
+        const [data] = await promisePool.query(`SELECT ${colunas} FROM ${nomeTabela} WHERE ${condicaoColuna} ${operador} "${condicaoValor}"`);
         return data;
     } catch (error) {
         console.log(error)
@@ -86,4 +86,4 @@ async function deletar(nomeTabela, id) {
     }
 }
 
-module.exports = { select, selectById, insert, update, deletar }
+module.exports = { select, selectWhere, insert, update, deletar}
