@@ -64,9 +64,11 @@ async function selectByDescriptionProducts(req, res) {
     try {
         let description = req.query.description
         let descAlterado = `%${description}%`
-        res.status(200).send(await selectWhere("*", "products", "DESCRIPTION", "like", descAlterado))
+        let result = await selectWhere("*", "products", "DESCRIPTION", "like", descAlterado)
+        if(result.length === 0) throw new Error('Não foi encontrado nenhum produto correspondente')
+        res.status(200).send(result)
     } catch (error) {
-        res.status(500).send({ error: error })
+        res.status(400).send({ error: error.message })
     }
 }
 
