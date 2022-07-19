@@ -23,27 +23,39 @@ async function selectAllProducts(req, res) {
 async function selectByIdProfiles(req, res) {
     try {
         const { id } = req.params
+
+        const [existe] = await selectWhere("ID", "profiles", "id", "=", id);
+        if (existe === undefined) throw new Error('Perfil com ID passado não existe')
+
         res.status(200).send(await selectWhere("*", "profiles", "id", "=", id))
     } catch (error) {
-        res.status(500).send({ error: error })
+        res.status(500).send({ error: error.message })
     }
 }
 
 async function selectByIdUsers(req, res) {
     try {
         const { id } = req.params
+
+        const [existe] = await selectWhere("ID", "users", "id", "=", id);
+        if (existe === undefined) throw new Error('Usuário com ID passado não existe')
+
         res.status(200).send(await selectWhere(userColunas, "users", "id", "=", id))
     } catch (error) {
-        res.status(500).send({ error: error })
+        res.status(500).send({ error: error.message })
     }
 }
 
 async function selectByIdProducts(req, res) {
     try {
         const { id } = req.params
+
+        const [existe] = await selectWhere("ID", "products", "id", "=", id);
+        if (existe === undefined) throw new Error('Produto com ID passado não existe')
+
         res.status(200).send(await selectWhere("*", "products", "id", "=", id))
     } catch (error) {
-        res.status(500).send({ error: error })
+        res.status(500).send({ error: error.message })
     }
 }
 
@@ -164,30 +176,42 @@ async function updateProducts(req, res) {
 async function deleteProfiles(req, res) {
     try {
         const { id } = req.params
+
+        const [existe] = await selectWhere("ID", "profiles", "id", "=", id);
+        if (existe === undefined) throw new Error('Perfil com ID passado não existe')
+
         await deletar('profiles', id)
         res.status(200).send('Deletado')
     } catch (error) {
-        res.status(500).send({ error: error })
+        res.status(500).send({ error: error.message })
     }
 }
 
 async function deleteUsers(req, res) {
     try {
         const { id } = req.params
+
+        const [existe] = await selectWhere("ID", "users", "id", "=", id);
+        if (existe === undefined) throw new Error('Usuário com ID passado não existe')
+
         await deletar('users', id)
         res.status(200).send('Deletado')
     } catch (error) {
-        res.status(500).send({ error: error })
+        res.status(500).send({ error: error.message })
     }
 }
 
 async function deleteProducts(req, res) {
     try {
         const { id } = req.params
+
+        const [existe] = await selectWhere("ID", "products", "id", "=", id);
+        if (existe === undefined) throw new Error('Produto com ID passado não existe')
+
         await deletar('products', id)
         res.status(200).send('Deletado')
     } catch (error) {
-        res.status(500).send({ error: error })
+        res.status(500).send({ error: error.message })
     }
 }
 
@@ -208,7 +232,7 @@ async function login(req, res) {
 
         if (comparedPw) {
             const token = jwt.sign(payload, process.env.SECRET, { expiresIn: '12h' })
-            res.json({ auth: true, token })
+            res.json({ token })
 
         } else {
             throw new Error('CPF ou Senha incorretos')

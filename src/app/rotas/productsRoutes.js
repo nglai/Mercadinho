@@ -11,7 +11,7 @@ ProductsRouter.get('/products', selectAllProducts)
 
 ProductsRouter.get('/products/:id', selectByIdProducts)
 
-ProductsRouter.get('/productsdesc', selectByDescriptionProducts)
+ProductsRouter.get('/products.search', selectByDescriptionProducts)
 
 ProductsRouter.post('/products', validation(insertProductsSchema), insertProducts)
 
