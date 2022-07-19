@@ -32,7 +32,7 @@ let insertProductsSchema = yup.object().shape({
     DESCRIPTION: yup
         .string()
         .required("A descrição é obrigatória")
-        .min(11, "A descrição deve ter pelo menos 8 caracteres"),
+        .min(5, "A descrição deve ter pelo menos 5 caracteres"),
     BRAND: yup
         .string()
         .required("A marca é obrigatória"),
