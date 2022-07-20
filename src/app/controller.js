@@ -62,13 +62,12 @@ async function selectByIdProducts(req, res) {
 //SELECT BY DESCRIPTION
 async function selectByDescriptionProducts(req, res) {
     try {
-        let description = req.query.description
-        let descAlterado = `%${description}%`
-        let result = await selectWhere("*", "products", "DESCRIPTION", "like", descAlterado)
-        if(result.length === 0) throw new Error('Não foi encontrado nenhum produto correspondente')
+        let description = `%${req.query.description}%`
+        let result = await selectWhere("*", "products", "DESCRIPTION", "like", description)
+        if (result.length === 0) throw new Error('Não foi encontrado nenhum produto correspondente')
         res.status(200).send(result)
     } catch (error) {
-        res.status(400).send({ error: error.message })
+        res.status(404).send({ error: error.message })
     }
 }
 
@@ -77,7 +76,7 @@ async function insertProfiles(req, res) {
     try {
         const colunas = Object.keys(req.body[0])
         const valores = Object.values(req.body)
-        await insert('profiles', colunas, valores)
+        await insert(req.dados.name, 'profiles', colunas, valores)
         res.status(201).send('Inserido')
     } catch (error) {
         res.status(500).send({ error: error })
@@ -97,10 +96,10 @@ async function insertUsers(req, res) {
 
         const values = req.body.map((item, indice) => ({ ...item, PASSWORD: senhas[indice] }))
 
-        await insert('users', colunas, values)
+        await insert(req.dados.name, 'users', colunas, values)
         res.status(201).send('Inserido')
     } catch (error) {
-        res.status(500).send({ error: error })
+        res.status(500).send({ error: error.message })
     }
 }
 
@@ -108,7 +107,7 @@ async function insertProducts(req, res) {
     try {
         const colunas = Object.keys(req.body[0])
         const valores = Object.values(req.body)
-        await insert('products', colunas, valores)
+        await insert(req.dados.name, 'products', colunas, valores)
         res.status(201).send('Inserido')
     } catch (error) {
         res.status(500).send({ error: error })
@@ -221,7 +220,7 @@ async function deleteProducts(req, res) {
 async function login(req, res) {
     try {
         const { CPF, PASSWORD } = req.body
-        const [params] = await selectWhere("ID, NAME, PASSWORD, PROFILE_ID", "users", "CPF" , "=", CPF)
+        const [params] = await selectWhere("ID, NAME, PASSWORD, PROFILE_ID", "users", "CPF", "=", CPF)
         const payload = {
             userId: params.ID,
             name: params.NAME,

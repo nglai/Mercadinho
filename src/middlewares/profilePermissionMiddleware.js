@@ -1,4 +1,4 @@
-const {select} = require('../utils/service')
+const { select } = require('../utils/service')
 
 async function profilePermissionMiddleware(req, res, next) {
 
@@ -9,7 +9,7 @@ async function profilePermissionMiddleware(req, res, next) {
 
     let methods = ["GET", "POST", "DELETE", "PATCH"]
 
-    if(req.path === "/login"){
+    if (req.path === "/login") {
         next()
     } else {
         const profilesPermission = {
@@ -17,7 +17,7 @@ async function profilePermissionMiddleware(req, res, next) {
             2: req.dados.profileId === 2 && (arrayProductsPath.indexOf(req.path) > -1) && req.method === "GET",
             3: req.dados.profileId === 3 && (arrayProductsPath.indexOf(req.path) > -1) && (methods.indexOf(req.method) > -1)
         }
-        if(profilesPermission[req.dados.profileId]){
+        if (profilesPermission[req.dados.profileId]) {
             next()
         } else {
             res.status(401).send("Perfil não autorizado ou rota inexistente")

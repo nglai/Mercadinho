@@ -38,19 +38,27 @@ async function selectWhere(colunas, nomeTabela, condicaoColuna, operador, condic
 //         console.log(error)
 //     }
 // }
-async function insert(nomeTabela, colunas, valores) {
+async function insert(userName, nomeTabela, colunas, valores) {
     try {
-        //Colunas [ 'NAME', 'ID' ]
-        //Valores [ { NAME: 'Chave 1', ID: 4 }, { NAME: 'Chave 2', ID: 5 } ]
-
-        const values = []  //[ [ 'Chave 1', 4 ], [ 'Chave 2', 5 ] ]
+        const tablesWithDateAndUser = ["products"]
+        const nowDate = new Date().toJSON().slice(0, 19).replace('T', ' ')
+        const values = []
 
         for (let index = 0; index < valores.length; index++) {
-            let valor  = Object.values(valores[index])
-            const valor2 = '("' + valor.join('","') + '")'
+            let valor = Object.values(valores[index])
+            let valor2;
+            if (tablesWithDateAndUser.indexOf(nomeTabela) > -1) {
+                valor2 = '("' + valor.join('","') + '","' + userName + '","' + nowDate + '")'
+            } else {
+                valor2 = '("' + valor.join('","') + '")'
+            }
             values.push(valor2)
         }
-        
+        if (tablesWithDateAndUser.indexOf(nomeTabela) > -1) {
+            colunas.push("CREATED_USER", "CREATED_AT")
+        }
+
+
         await promisePool.query(`INSERT INTO ${nomeTabela} (${colunas}) VALUES ${values}`)
         console.log('Inserido com sucesso!')
     } catch (error) {
@@ -63,7 +71,7 @@ async function update(nomeTabela, colunas, valores, id) {
     try {
         let update = '';
         for (let i = 0; i < colunas.length; i++) {
-            if(i == (colunas.length - 1)){
+            if (i == (colunas.length - 1)) {
                 update += colunas[i] + '=' + `"${valores[i]}"`
             } else {
                 update += colunas[i] + '=' + `"${valores[i]}"` + ","
@@ -86,4 +94,4 @@ async function deletar(nomeTabela, id) {
     }
 }
 
-module.exports = { select, selectWhere, insert, update, deletar}
+module.exports = { select, selectWhere, insert, update, deletar }
