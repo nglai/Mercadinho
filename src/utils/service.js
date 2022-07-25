@@ -29,18 +29,9 @@ async function selectWhere(colunas, nomeTabela, condicaoColuna, operador, condic
 }
 
 // INSERT
-// async function insert(nomeTabela, colunas, valores) {
-//     try {
-//         const valor = '"' + valores.join('","') + '"'
-//         await promisePool.query(`INSERT INTO ${nomeTabela} (${colunas}) VALUES (${valor})`)
-//         console.log('Inserido com sucesso!')
-//     } catch (error) {
-//         console.log(error)
-//     }
-// }
 async function insert(userName, nomeTabela, colunas, valores) {
     try {
-        const tablesWithDateAndUser = ["products"]
+        const tablesWithDateAndUser = ["products", "users"]
         const nowDate = new Date().toJSON().slice(0, 19).replace('T', ' ')
         const values = []
 

@@ -76,7 +76,7 @@ async function insertProfiles(req, res) {
     try {
         const colunas = Object.keys(req.body[0])
         const valores = Object.values(req.body)
-        await insert(req.dados.name, 'profiles', colunas, valores)
+        await insert("", 'profiles', colunas, valores)
         res.status(201).send('Inserido')
     } catch (error) {
         res.status(500).send({ error: error })
@@ -85,16 +85,14 @@ async function insertProfiles(req, res) {
 
 async function insertUsers(req, res) {
     try {
-        const colunas = Object.keys(req.body[0]) //[ 'CPF', 'PASSWORD', 'PROFILE_ID' ]
-        const valores = Object.values(req.body) //[ { CPF: '12345678912', PASSWORD: '123456', PROFILE_ID: 1 } ]
+        const colunas = Object.keys(req.body[0])
 
-        const senhas = []
-        for (let index = 0; index < valores.length; index++) {
-            const novaSenha = await hash(Object.values(req.body)[index]['PASSWORD'])
-            senhas.push(novaSenha)
-        }
-
-        const values = req.body.map((item, indice) => ({ ...item, PASSWORD: senhas[indice] }))
+        const values = await Promise.all(
+            req.body.map(async (item, index) => ({
+                ...item,
+                PASSWORD: await hash(Object.values(req.body)[index]['PASSWORD'])
+            }))
+        )
 
         await insert(req.dados.name, 'users', colunas, values)
         res.status(201).send('Inserido')
