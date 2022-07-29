@@ -8,15 +8,22 @@ const userColunas = process.env.USERCOLUNAS
 
 //SELECT ALL
 async function selectAllProfiles(req, res) {
-    res.status(200).send(await select("*", "profiles"))
+    let { pagina = 1, limit = 10 } = req.query;
+    const offset = (pagina - 1) * limit;
+    res.status(200).send(await select("*", "profiles", limit, offset))
 }
 
 async function selectAllUsers(req, res) {
-    res.status(200).send(await select(userColunas, "users"))
+    let { pagina = 1, limit = 10 } = req.query;
+    const offset = (pagina - 1) * limit;
+    res.status(200).send(await select(userColunas, "users", limit, offset))
 }
 
 async function selectAllProducts(req, res) {
-    res.status(200).send(await select("*", "products"))
+    let { pagina = 1, limit = 10 } = req.query;
+    const offset = (pagina - 1) * limit;
+    const select = await select("*", "products", limit, offset);
+    res.status(200).send(select)
 }
 
 //SELECT BY ID
@@ -52,7 +59,6 @@ async function selectByIdProducts(req, res) {
 
         const [existe] = await selectWhere("ID", "products", "id", "=", id);
         if (existe === undefined) throw new Error('Produto com ID passado não existe')
-
         res.status(200).send(await selectWhere("*", "products", "id", "=", id))
     } catch (error) {
         res.status(500).send({ error: error.message })
@@ -122,7 +128,7 @@ async function updateProfiles(req, res) {
         const [existe] = await selectWhere("ID", "profiles", "id", "=", id);
         if (existe === undefined) throw new Error('Perfil com ID passado não existe')
 
-        await update('profiles', colunas, valores, id)
+        await update("", 'profiles', colunas, valores, id)
         res.status(200).send('Atualizado')
     } catch (error) {
         res.status(500).send({ error: error.message })
@@ -148,7 +154,7 @@ async function updateUsers(req, res) {
             valores = novosValores
         }
 
-        await update('users', colunas, valores, id)
+        await update(req.dados.name, 'users', colunas, valores, id)
         res.status(200).send('Atualizado')
     } catch (error) {
         res.status(500).send({ error: error.message })
@@ -164,7 +170,7 @@ async function updateProducts(req, res) {
         const [existe] = await selectWhere("ID", "products", "id", "=", id);
         if (existe === undefined) throw new Error('Produto com ID passado não existe')
 
-        await update('products', colunas, valores, id)
+        await update(req.dados.name, 'products', colunas, valores, id)
         res.status(200).send('Atualizado')
     } catch (error) {
         res.status(500).send({ error: error.message })
