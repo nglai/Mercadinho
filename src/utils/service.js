@@ -1,5 +1,6 @@
 const mysql = require('mysql2');
 require('dotenv').config()
+const formataData = require('../utils/formataData')
 
 const pool = mysql.createPool({
     host: process.env.HOST,
@@ -11,10 +12,17 @@ const pool = mysql.createPool({
 const promisePool = pool.promise();
 
 // SELECT
-async function select(colunas, nomeTabela) {
+// async function select(colunas, nomeTabela) {
+//     //abstração de array [posição]
+//     const [data] = await promisePool.query(`SELECT ${colunas} FROM ${nomeTabela}`);
+//     return data
+// }
+async function select(colunas, nomeTabela, limit, offset) {
     //abstração de array [posição]
-    const [data] = await promisePool.query(`SELECT ${colunas} FROM ${nomeTabela}`);
-    return data
+    const [rows] = await promisePool.query(`SELECT ${colunas} FROM ${nomeTabela} limit ${limit} offset ${offset}`);
+    const [count] = await promisePool.query(`SELECT COUNT (*) FROM ${nomeTabela}`);
+    const total = count[0]["COUNT (*)"]
+    return { total, rows }
 }
 
 //SELECT WHERE
@@ -29,28 +37,27 @@ async function selectWhere(colunas, nomeTabela, condicaoColuna, operador, condic
 }
 
 // INSERT
-// async function insert(nomeTabela, colunas, valores) {
-//     try {
-//         const valor = '"' + valores.join('","') + '"'
-//         await promisePool.query(`INSERT INTO ${nomeTabela} (${colunas}) VALUES (${valor})`)
-//         console.log('Inserido com sucesso!')
-//     } catch (error) {
-//         console.log(error)
-//     }
-// }
-async function insert(nomeTabela, colunas, valores) {
+async function insert(userName, nomeTabela, colunas, valores) {
     try {
-        //Colunas [ 'NAME', 'ID' ]
-        //Valores [ { NAME: 'Chave 1', ID: 4 }, { NAME: 'Chave 2', ID: 5 } ]
+        const tablesWithDateAndUser = ["products", "users"]
+        const dateTime = formataData(new Date());
 
-        const values = []  //[ [ 'Chave 1', 4 ], [ 'Chave 2', 5 ] ]
+        const values = []
 
         for (let index = 0; index < valores.length; index++) {
-            let valor  = Object.values(valores[index])
-            const valor2 = '("' + valor.join('","') + '")'
+            let valor = Object.values(valores[index])
+            let valor2;
+            if (tablesWithDateAndUser.indexOf(nomeTabela) > -1) {
+                valor2 = '("' + valor.join('","') + '","' + userName + '","' + dateTime + '")'
+            } else {
+                valor2 = '("' + valor.join('","') + '")'
+            }
             values.push(valor2)
         }
-        
+        if (tablesWithDateAndUser.indexOf(nomeTabela) > -1) {
+            colunas.push("CREATED_USER", "CREATED_AT")
+        }
+
         await promisePool.query(`INSERT INTO ${nomeTabela} (${colunas}) VALUES ${values}`)
         console.log('Inserido com sucesso!')
     } catch (error) {
@@ -59,16 +66,25 @@ async function insert(nomeTabela, colunas, valores) {
 }
 
 // UPDATE
-async function update(nomeTabela, colunas, valores, id) {
+async function update(userName, nomeTabela, colunas, valores, id) {
     try {
+        const tablesWithDateAndUser = ["products", "users"]
+
+        const dateTime = formataData(new Date());
+
         let update = '';
         for (let i = 0; i < colunas.length; i++) {
-            if(i == (colunas.length - 1)){
+            if (i == (colunas.length - 1)) {
                 update += colunas[i] + '=' + `"${valores[i]}"`
             } else {
                 update += colunas[i] + '=' + `"${valores[i]}"` + ","
             }
         }
+
+        if (tablesWithDateAndUser.indexOf(nomeTabela) > -1) {
+            update += `,LAST_UPDATED_USER = "${userName}", LAST_UPDATED_AT = "${dateTime}"`
+        }
+
         await promisePool.query(`UPDATE ${nomeTabela} SET ${update} WHERE ID=${id} `)
         console.log('Atualizado com sucesso!')
     } catch (error) {
@@ -86,4 +102,4 @@ async function deletar(nomeTabela, id) {
     }
 }
 
-module.exports = { select, selectWhere, insert, update, deletar}
+module.exports = { select, selectWhere, insert, update, deletar }

@@ -8,15 +8,22 @@ const userColunas = process.env.USERCOLUNAS
 
 //SELECT ALL
 async function selectAllProfiles(req, res) {
-    res.status(200).send(await select("*", "profiles"))
+    let { pagina = 1, limit = 10 } = req.query;
+    const offset = (pagina - 1) * limit;
+    res.status(200).send(await select("*", "profiles", limit, offset))
 }
 
 async function selectAllUsers(req, res) {
-    res.status(200).send(await select(userColunas, "users"))
+    let { pagina = 1, limit = 10 } = req.query;
+    const offset = (pagina - 1) * limit;
+    res.status(200).send(await select(userColunas, "users", limit, offset))
 }
 
 async function selectAllProducts(req, res) {
-    res.status(200).send(await select("*", "products"))
+    let { pagina = 1, limit = 10 } = req.query;
+    const offset = (pagina - 1) * limit;
+    const select = await select("*", "products", limit, offset);
+    res.status(200).send(select)
 }
 
 //SELECT BY ID
@@ -52,7 +59,6 @@ async function selectByIdProducts(req, res) {
 
         const [existe] = await selectWhere("ID", "products", "id", "=", id);
         if (existe === undefined) throw new Error('Produto com ID passado não existe')
-
         res.status(200).send(await selectWhere("*", "products", "id", "=", id))
     } catch (error) {
         res.status(500).send({ error: error.message })
@@ -62,11 +68,12 @@ async function selectByIdProducts(req, res) {
 //SELECT BY DESCRIPTION
 async function selectByDescriptionProducts(req, res) {
     try {
-        let description = req.query.description
-        let descAlterado = `%${description}%`
-        res.status(200).send(await selectWhere("*", "products", "DESCRIPTION", "like", descAlterado))
+        let description = `%${req.query.description}%`
+        let result = await selectWhere("*", "products", "DESCRIPTION", "like", description)
+        if (result.length === 0) throw new Error('Não foi encontrado nenhum produto correspondente')
+        res.status(200).send(result)
     } catch (error) {
-        res.status(500).send({ error: error })
+        res.status(404).send({ error: error.message })
     }
 }
 
@@ -75,7 +82,7 @@ async function insertProfiles(req, res) {
     try {
         const colunas = Object.keys(req.body[0])
         const valores = Object.values(req.body)
-        await insert('profiles', colunas, valores)
+        await insert("", 'profiles', colunas, valores)
         res.status(201).send('Inserido')
     } catch (error) {
         res.status(500).send({ error: error })
@@ -84,21 +91,19 @@ async function insertProfiles(req, res) {
 
 async function insertUsers(req, res) {
     try {
-        const colunas = Object.keys(req.body[0]) //[ 'CPF', 'PASSWORD', 'PROFILE_ID' ]
-        const valores = Object.values(req.body) //[ { CPF: '12345678912', PASSWORD: '123456', PROFILE_ID: 1 } ]
+        const colunas = Object.keys(req.body[0])
 
-        const senhas = []
-        for (let index = 0; index < valores.length; index++) {
-            const novaSenha = await hash(Object.values(req.body)[index]['PASSWORD'])
-            senhas.push(novaSenha)
-        }
+        const values = await Promise.all(
+            req.body.map(async (item, index) => ({
+                ...item,
+                PASSWORD: await hash(Object.values(req.body)[index]['PASSWORD'])
+            }))
+        )
 
-        const values = req.body.map((item, indice) => ({ ...item, PASSWORD: senhas[indice] }))
-
-        await insert('users', colunas, values)
+        await insert(req.dados.name, 'users', colunas, values)
         res.status(201).send('Inserido')
     } catch (error) {
-        res.status(500).send({ error: error })
+        res.status(500).send({ error: error.message })
     }
 }
 
@@ -106,7 +111,7 @@ async function insertProducts(req, res) {
     try {
         const colunas = Object.keys(req.body[0])
         const valores = Object.values(req.body)
-        await insert('products', colunas, valores)
+        await insert(req.dados.name, 'products', colunas, valores)
         res.status(201).send('Inserido')
     } catch (error) {
         res.status(500).send({ error: error })
@@ -123,7 +128,7 @@ async function updateProfiles(req, res) {
         const [existe] = await selectWhere("ID", "profiles", "id", "=", id);
         if (existe === undefined) throw new Error('Perfil com ID passado não existe')
 
-        await update('profiles', colunas, valores, id)
+        await update("", 'profiles', colunas, valores, id)
         res.status(200).send('Atualizado')
     } catch (error) {
         res.status(500).send({ error: error.message })
@@ -149,7 +154,7 @@ async function updateUsers(req, res) {
             valores = novosValores
         }
 
-        await update('users', colunas, valores, id)
+        await update(req.dados.name, 'users', colunas, valores, id)
         res.status(200).send('Atualizado')
     } catch (error) {
         res.status(500).send({ error: error.message })
@@ -165,7 +170,7 @@ async function updateProducts(req, res) {
         const [existe] = await selectWhere("ID", "products", "id", "=", id);
         if (existe === undefined) throw new Error('Produto com ID passado não existe')
 
-        await update('products', colunas, valores, id)
+        await update(req.dados.name, 'products', colunas, valores, id)
         res.status(200).send('Atualizado')
     } catch (error) {
         res.status(500).send({ error: error.message })
@@ -219,7 +224,7 @@ async function deleteProducts(req, res) {
 async function login(req, res) {
     try {
         const { CPF, PASSWORD } = req.body
-        const [params] = await selectWhere("ID, NAME, PASSWORD, PROFILE_ID", "users", "CPF" , "=", CPF)
+        const [params] = await selectWhere("ID, NAME, PASSWORD, PROFILE_ID", "users", "CPF", "=", CPF)
         const payload = {
             userId: params.ID,
             name: params.NAME,
