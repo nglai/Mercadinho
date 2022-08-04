@@ -1,4 +1,5 @@
-const { select, selectWhere, insert, update, deletar } = require('../../utils/service')
+const CheckoutsServices = require('../../utils/services/CheckoutsServices');
+const checkoutsServices = new CheckoutsServices;
 
 class CheckoutsController {
 
@@ -6,7 +7,7 @@ class CheckoutsController {
     static async selectAllCheckouts(req, res) {
         let { pagina = 1, limit = 10 } = req.query;
         const offset = (pagina - 1) * limit;
-        const selectAll = await select("*", "checkouts", limit, offset);
+        const selectAll = await checkoutsServices.select("*", limit, offset);
         res.status(200).send(selectAll);
     };
 
@@ -15,10 +16,10 @@ class CheckoutsController {
         try {
             const { id } = req.params;
 
-            const [existe] = await selectWhere("ID", "checkouts", `id = ${id}`);
+            const [existe] = await checkoutsServices.selectWhere("ID", `id = ${id}`);
             if (existe === undefined) throw new Error('Checkout com ID passado não existe');
 
-            res.status(200).send(await selectWhere("*", "checkouts", `id = ${id}`));
+            res.status(200).send(await checkoutsServices.selectWhere("*", `id = ${id}`));
         } catch (error) {
             res.status(500).send({ error: error.message });
         }
@@ -29,7 +30,7 @@ class CheckoutsController {
         try {
             const colunas = Object.keys(req.body[0]);
             const valores = Object.values(req.body);
-            await insert(req.dados.name, 'checkouts', colunas, valores);
+            await checkoutsServices.createCheckout(req.dados.name, colunas, valores);
             res.status(201).send('Inserido');
         } catch (error) {
             res.status(500).send({ error: error.message });
@@ -43,15 +44,15 @@ class CheckoutsController {
             const valores = Object.values(req.body[0]);
             const { id } = req.params;
 
-            const [existe] = await selectWhere("ID", "checkouts", `id = ${id}`);
+            const [existe] = await checkoutsServices.selectWhere("ID", `id = ${id}`);
             if (existe === undefined) throw new Error('Checkout com ID passado não existe');
 
-            await update(req.dados.name, 'checkouts', colunas, valores, `id = ${id}`);
+            await checkoutsServices.updateCheckout(req.dados.name, colunas, valores, `id = ${id}`);
             res.status(200).send('Atualizado');
         } catch (error) {
             res.status(500).send({ error: error.message });
         }
     };
-}
+};
 
 module.exports = CheckoutsController;
