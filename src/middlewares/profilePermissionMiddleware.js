@@ -7,7 +7,7 @@ async function profilePermissionMiddleware(req, res, next) {
     } else {
         const profilesPermission = {
             1: req.dados.profileId === 1,
-            2: req.dados.profileId === 2 && req.path.startsWith('/products') && req.method === "GET",
+            2: req.dados.profileId === 2 && (req.path.startsWith('/products') && req.method === "GET") || (req.path.startsWith('/checkout') && (methods.indexOf(req.method) > -1)),
             3: req.dados.profileId === 3 && req.path.startsWith('/products') && (methods.indexOf(req.method) > -1)
         }
         if (profilesPermission[req.dados.profileId]) {

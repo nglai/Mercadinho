@@ -39,7 +39,7 @@ async function selectWhere(colunas, nomeTabela, condicaoColuna, operador, condic
 // INSERT
 async function insert(userName, nomeTabela, colunas, valores) {
     try {
-        const tablesWithDateAndUser = ["products", "users"]
+        const tablesWithDateAndUser = ["products", "users", "checkouts"]
         const dateTime = formataData(new Date());
 
         const values = []
@@ -65,10 +65,31 @@ async function insert(userName, nomeTabela, colunas, valores) {
     }
 }
 
+// INSERT CheckoutProducts
+async function insertCheckoutProducts(precos, nomeTabela, colunas, valores) {
+    try {
+
+        const values = []
+
+        for (let index = 0; index < valores.length; index++) {
+            let valor = Object.values(valores[index])
+            let valor2 = '("' + valor.join('","') + '","' + precos[index] + '")'
+            values.push(valor2)
+        }
+
+        colunas.push("PRICE")
+
+        await promisePool.query(`INSERT INTO ${nomeTabela} (${colunas}) VALUES ${values}`)
+        console.log('Inserido com sucesso!')
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 // UPDATE
 async function update(userName, nomeTabela, colunas, valores, id) {
     try {
-        const tablesWithDateAndUser = ["products", "users"]
+        const tablesWithDateAndUser = ["products", "users", "checkouts"]
 
         const dateTime = formataData(new Date());
 
@@ -102,4 +123,4 @@ async function deletar(nomeTabela, id) {
     }
 }
 
-module.exports = { select, selectWhere, insert, update, deletar }
+module.exports = { select, selectWhere, insert, insertCheckoutProducts, update, deletar }
