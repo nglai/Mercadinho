@@ -3,7 +3,6 @@ const ProfilesRouter = require('./profilesRoutes')
 const UsersRouter = require('./usersRoutes')
 const ProductsRouter = require('./productsRoutes')
 const CheckoutsRouter = require('./checkoutsRoutes')
-const CheckoutProductsRouter = require('./checkoutProductsRoutes')
 const verifyJWT = require('../../middlewares/authMiddleware')
 const profilePermissionMiddleware = require('../../middlewares/profilePermissionMiddleware')
 
@@ -19,8 +18,7 @@ const indexRoutes = (app) => {
         ProfilesRouter,
         UsersRouter,
         ProductsRouter,
-        CheckoutsRouter,
-        CheckoutProductsRouter
+        CheckoutsRouter
     )
 }
 

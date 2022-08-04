@@ -15,10 +15,10 @@ class ProfilesController {
         try {
             const { id } = req.params
 
-            const [existe] = await selectWhere("ID", "profiles", "id", "=", id);
+            const [existe] = await selectWhere("ID", "profiles", `id = ${id}`);
             if (existe === undefined) throw new Error('Perfil com ID passado não existe')
 
-            res.status(200).send(await selectWhere("*", "profiles", "id", "=", id))
+            res.status(200).send(await selectWhere("*", "profiles", `id = ${id}`))
         } catch (error) {
             res.status(500).send({ error: error.message })
         }
@@ -43,10 +43,10 @@ class ProfilesController {
             const valores = Object.values(req.body[0])
             const { id } = req.params
 
-            const [existe] = await selectWhere("ID", "profiles", "id", "=", id);
+            const [existe] = await selectWhere("ID", "profiles", `id = ${id}`);
             if (existe === undefined) throw new Error('Perfil com ID passado não existe')
 
-            await update("", 'profiles', colunas, valores, id)
+            await update("", 'profiles', colunas, valores, `id = ${id}`)
             res.status(200).send('Atualizado')
         } catch (error) {
             res.status(500).send({ error: error.message })
@@ -58,7 +58,7 @@ class ProfilesController {
         try {
             const { id } = req.params
 
-            const [existe] = await selectWhere("ID", "profiles", "id", "=", id);
+            const [existe] = await selectWhere("ID", "profiles", `id = ${id}`);
             if (existe === undefined) throw new Error('Perfil com ID passado não existe')
 
             await deletar('profiles', id)

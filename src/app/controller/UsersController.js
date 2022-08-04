@@ -20,10 +20,10 @@ class UsersController {
         try {
             const { id } = req.params;
 
-            const [existe] = await selectWhere("ID", "users", "id", "=", id);
+            const [existe] = await selectWhere("ID", "users", `id = ${id}`);
             if (existe === undefined) throw new Error('Usuário com ID passado não existe');
 
-            res.status(200).send(await selectWhere(userColunas, "users", "id", "=", id));
+            res.status(200).send(await selectWhere(userColunas, "users", `id = ${id}`));
         } catch (error) {
             res.status(500).send({ error: error.message });
         }
@@ -54,7 +54,7 @@ class UsersController {
             const { id } = req.params;
             const colunas = Object.keys(req.body[0]);
 
-            const [existe] = await selectWhere("ID", "users", "id", "=", id);
+            const [existe] = await selectWhere("ID", "users", `id = ${id}`);
             if (existe === undefined) throw new Error('Usuário com ID passado não existe');
 
             let valores;
@@ -68,7 +68,7 @@ class UsersController {
                 valores = novosValores;
             };
 
-            await update(req.dados.name, 'users', colunas, valores, id);
+            await update(req.dados.name, 'users', colunas, valores, `id = ${id}`);
             res.status(200).send('Atualizado');
         } catch (error) {
             res.status(500).send({ error: error.message });
@@ -80,7 +80,7 @@ class UsersController {
         try {
             const { id } = req.params;
 
-            const [existe] = await selectWhere("ID", "users", "id", "=", id);
+            const [existe] = await selectWhere("ID", "users", `id = ${id}`);
             if (existe === undefined) throw new Error('Usuário com ID passado não existe');
 
             await deletar('users', id);
@@ -94,7 +94,7 @@ class UsersController {
     static async login(req, res) {
         try {
             const { CPF, PASSWORD } = req.body;
-            const [params] = await selectWhere("ID, NAME, PASSWORD, PROFILE_ID", "users", "CPF", "=", CPF);
+            const [params] = await selectWhere("ID, NAME, PASSWORD, PROFILE_ID", "users", `CPF = "${CPF}"`);
             const payload = {
                 userId: params.ID,
                 name: params.NAME,

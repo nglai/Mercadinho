@@ -11,12 +11,6 @@ const pool = mysql.createPool({
 
 const promisePool = pool.promise();
 
-// SELECT
-// async function select(colunas, nomeTabela) {
-//     //abstração de array [posição]
-//     const [data] = await promisePool.query(`SELECT ${colunas} FROM ${nomeTabela}`);
-//     return data
-// }
 async function select(colunas, nomeTabela, limit, offset) {
     //abstração de array [posição]
     const [rows] = await promisePool.query(`SELECT ${colunas} FROM ${nomeTabela} limit ${limit} offset ${offset}`);
@@ -26,10 +20,10 @@ async function select(colunas, nomeTabela, limit, offset) {
 }
 
 //SELECT WHERE
-async function selectWhere(colunas, nomeTabela, condicaoColuna, operador, condicaoValor) {
+async function selectWhere(colunas, nomeTabela, where) {
     try {
         //abstração de array [posição]
-        const [data] = await promisePool.query(`SELECT ${colunas} FROM ${nomeTabela} WHERE ${condicaoColuna} ${operador} "${condicaoValor}"`);
+        const [data] = await promisePool.query(`SELECT ${colunas} FROM ${nomeTabela} WHERE ${where}`);
         return data;
     } catch (error) {
         console.log(error)
@@ -66,18 +60,36 @@ async function insert(userName, nomeTabela, colunas, valores) {
 }
 
 // INSERT CheckoutProducts
-async function insertCheckoutProducts(precos, nomeTabela, colunas, valores) {
+async function insertCheckoutProducts(checkoutId, nomeTabela, colunas, valores) {
     try {
+        let idProdutos = valores.map(item => item["PRODUCT_ID"])
+        const precos = []
+        for (const item of idProdutos) {
+            const selected = await selectWhere("PRICE", "products", "id", "=", item)
+            precos.push(selected[0]["PRICE"])
+        }
+
+        const subtotal = []
+        let quantidade = valores.map(item => item["QUANTITY"])
+        for (let index = 0; index < quantidade.length; index++) {
+            if (colunas.includes('PRODUCT_DISCOUNT')) {
+                let desconto = valores.map(item => item["PRODUCT_DISCOUNT"])
+                const sub = (quantidade[index] * precos[index]) - desconto[index];
+                subtotal.push(sub);
+            } else {
+                const sub = quantidade[index] * precos[index]
+                subtotal.push(sub);
+            }
+        }
 
         const values = []
-
         for (let index = 0; index < valores.length; index++) {
             let valor = Object.values(valores[index])
-            let valor2 = '("' + valor.join('","') + '","' + precos[index] + '")'
+            let valor2 = '("' + valor.join('","') + '","' + checkoutId + '","' + precos[index] + '","' + subtotal[index] + '")'
             values.push(valor2)
         }
 
-        colunas.push("PRICE")
+        colunas.push("CHECKOUT_ID", "PRICE", "SUBTOTAL")
 
         await promisePool.query(`INSERT INTO ${nomeTabela} (${colunas}) VALUES ${values}`)
         console.log('Inserido com sucesso!')
@@ -87,7 +99,7 @@ async function insertCheckoutProducts(precos, nomeTabela, colunas, valores) {
 }
 
 // UPDATE
-async function update(userName, nomeTabela, colunas, valores, id) {
+async function update(userName, nomeTabela, colunas, valores, where) {
     try {
         const tablesWithDateAndUser = ["products", "users", "checkouts"]
 
@@ -106,7 +118,11 @@ async function update(userName, nomeTabela, colunas, valores, id) {
             update += `,LAST_UPDATED_USER = "${userName}", LAST_UPDATED_AT = "${dateTime}"`
         }
 
-        await promisePool.query(`UPDATE ${nomeTabela} SET ${update} WHERE ID=${id} `)
+        if (nomeTabela == "checkout_products") {
+            update += `,CANCEL_USER = "${userName}"`
+        }
+
+        await promisePool.query(`UPDATE ${nomeTabela} SET ${update} WHERE ${where} `)
         console.log('Atualizado com sucesso!')
     } catch (error) {
         console.log(error)

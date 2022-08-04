@@ -15,9 +15,9 @@ class ProductsController {
         try {
             const { id } = req.params;
 
-            const [existe] = await selectWhere("ID", "products", "id", "=", id);
+            const [existe] = await selectWhere("ID", "products", `id = ${id}`);
             if (existe === undefined) throw new Error('Produto com ID passado não existe');
-            res.status(200).send(await selectWhere("*", "products", "id", "=", id));
+            res.status(200).send(await selectWhere("*", "products", `id = ${id}`));
         } catch (error) {
             res.status(500).send({ error: error.message });
         }
@@ -26,8 +26,8 @@ class ProductsController {
     //SELECT BY DESCRIPTION
     static async selectByDescriptionProducts(req, res) {
         try {
-            let description = `%${req.query.description}%`;
-            let result = await selectWhere("*", "products", "DESCRIPTION", "like", description);
+            let description = `"%${req.query.description}%"`;
+            let result = await selectWhere("*", "products", `DESCRIPTION like ${description}`);
             if (result.length === 0) throw new Error('Não foi encontrado nenhum produto correspondente');
             res.status(200).send(result);
         } catch (error) {
@@ -54,10 +54,10 @@ class ProductsController {
             const valores = Object.values(req.body[0]);
             const { id } = req.params;
 
-            const [existe] = await selectWhere("ID", "products", "id", "=", id);
+            const [existe] = await selectWhere("ID", "products", `id = ${id}`);
             if (existe === undefined) throw new Error('Produto com ID passado não existe');
 
-            await update(req.dados.name, 'products', colunas, valores, id);
+            await update(req.dados.name, 'products', colunas, valores, `id = ${id}`);
             res.status(200).send('Atualizado');
         } catch (error) {
             res.status(500).send({ error: error.message });
@@ -69,7 +69,7 @@ class ProductsController {
         try {
             const { id } = req.params;
 
-            const [existe] = await selectWhere("ID", "products", "id", "=", id);
+            const [existe] = await selectWhere("ID", "products", `id = ${id}`);
             if (existe === undefined) throw new Error('Produto com ID passado não existe');
 
             await deletar('products', id);

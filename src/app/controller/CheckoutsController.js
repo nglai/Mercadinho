@@ -11,21 +11,21 @@ class CheckoutsController {
     };
 
     //SELECT BY ID
-    static async selectByIdCheckouts(req, res) {
+    static async selectCheckoutById(req, res) {
         try {
             const { id } = req.params;
 
-            const [existe] = await selectWhere("ID", "checkouts", "id", "=", id);
+            const [existe] = await selectWhere("ID", "checkouts", `id = ${id}`);
             if (existe === undefined) throw new Error('Checkout com ID passado não existe');
 
-            res.status(200).send(await selectWhere("*", "checkouts", "id", "=", id));
+            res.status(200).send(await selectWhere("*", "checkouts", `id = ${id}`));
         } catch (error) {
             res.status(500).send({ error: error.message });
         }
     };
 
     //INSERT
-    static async insertCheckouts(req, res) {
+    static async createCheckout(req, res) {
         try {
             const colunas = Object.keys(req.body[0]);
             const valores = Object.values(req.body);
@@ -37,16 +37,16 @@ class CheckoutsController {
     };
 
     //UPDATE
-    static async updateCheckouts(req, res) {
+    static async updateCheckout(req, res) {
         try {
             const colunas = Object.keys(req.body[0]);
             const valores = Object.values(req.body[0]);
             const { id } = req.params;
 
-            const [existe] = await selectWhere("ID", "checkouts", "id", "=", id);
+            const [existe] = await selectWhere("ID", "checkouts", `id = ${id}`);
             if (existe === undefined) throw new Error('Checkout com ID passado não existe');
 
-            await update(req.dados.name, 'checkouts', colunas, valores, id);
+            await update(req.dados.name, 'checkouts', colunas, valores, `id = ${id}`);
             res.status(200).send('Atualizado');
         } catch (error) {
             res.status(500).send({ error: error.message });
