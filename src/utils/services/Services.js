@@ -70,25 +70,6 @@ class Services {
         }
     };
 
-    async updateWithUser(userName, colunas, valores, where) {
-        try {
-            let update = '';
-            for (let i = 0; i < colunas.length; i++) {
-                if (i == (colunas.length - 1)) {
-                    update += colunas[i] + '=' + `"${valores[i]}"`;
-                } else {
-                    update += colunas[i] + '=' + `"${valores[i]}"` + ",";
-                }
-            };
-            update += `,LAST_UPDATED_USER = "${userName}", LAST_UPDATED_AT = "${formataData(new Date())}"`;
-
-            await promisePool.query(`UPDATE ${this.nomeTabela} SET ${update} WHERE ${where} `);
-            console.log('Atualizado com sucesso!');
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
     // DELETE
     async exclude(id) {
         try {
