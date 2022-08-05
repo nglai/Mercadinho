@@ -2,6 +2,7 @@ const mysql = require('mysql2');
 require('dotenv').config();
 const formataData = require('../formataData');
 const Services = require('./Services');
+const checkoutProductsServices = new Services('checkout_products');
 
 const pool = mysql.createPool({
     host: process.env.HOST,
@@ -36,8 +37,19 @@ class CheckoutsServices extends Services {
     };
 
     // UPDATE
-    async updateCheckout(userName, colunas, valores, where) {
+    async updateCheckout(userName, reqBody, id) {
         try {
+            const colunas = Object.keys(reqBody[0]);
+            const valores = Object.values(reqBody[0]);
+
+            const subtotaisEDescontos = await checkoutProductsServices.selectWhere("SUBTOTAL, PRODUCT_DISCOUNT", `CHECKOUT_ID = ${id} and CANCELED = 0`);
+            let somaSubtotais = 0;
+            let somaDescontos = 0;
+            for (const item of subtotaisEDescontos) {
+                somaSubtotais += Number(item['SUBTOTAL'])
+                somaDescontos += Number(item['PRODUCT_DISCOUNT'])
+            };
+
             let update = '';
             for (let i = 0; i < colunas.length; i++) {
                 if (i == (colunas.length - 1)) {
@@ -46,9 +58,12 @@ class CheckoutsServices extends Services {
                     update += colunas[i] + '=' + `"${valores[i]}"` + ",";
                 }
             };
-            update += `,LAST_UPDATED_USER = "${userName}", LAST_UPDATED_AT = "${formataData(new Date())}"`;
 
-            await promisePool.query(`UPDATE ${this.nomeTabela} SET ${update} WHERE ${where}`);
+            let extraDiscount = reqBody.map(item => item["EXTRA_DISCOUNT"])
+            let total = somaSubtotais - extraDiscount
+
+            update += `,TOTAL = ${total.toFixed(2)}, TOTAL_PRODUCTS_DISCOUNTS = ${somaDescontos.toFixed(2)}, LAST_UPDATED_USER = "${userName}", LAST_UPDATED_AT = "${formataData(new Date())}"`;
+            await promisePool.query(`UPDATE ${this.nomeTabela} SET ${update} WHERE id = ${id}`);
             console.log('Atualizado com sucesso!');
         } catch (error) {
             console.log(error);

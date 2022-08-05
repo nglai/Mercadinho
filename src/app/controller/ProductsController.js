@@ -57,7 +57,7 @@ class ProductsController {
             const [existe] = await productsServices.selectWhere("ID", `id = ${id}`);
             if (existe === undefined) throw new Error('Produto com ID passado não existe');
 
-            await productsServices.updateProduct(req.dados.name, colunas, valores, `id = ${id}`);
+            await productsServices.updateWithUser(req.dados.name, colunas, valores, `id = ${id}`);
             res.status(200).send('Atualizado');
         } catch (error) {
             res.status(500).send({ error: error.message });

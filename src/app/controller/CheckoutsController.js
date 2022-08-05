@@ -40,14 +40,29 @@ class CheckoutsController {
     //UPDATE
     static async updateCheckout(req, res) {
         try {
-            const colunas = Object.keys(req.body[0]);
-            const valores = Object.values(req.body[0]);
             const { id } = req.params;
 
             const [existe] = await checkoutsServices.selectWhere("ID", `id = ${id}`);
             if (existe === undefined) throw new Error('Checkout com ID passado não existe');
 
-            await checkoutsServices.updateCheckout(req.dados.name, colunas, valores, `id = ${id}`);
+            await checkoutsServices.updateCheckout(req.dados.name, req.body, id);
+            res.status(200).send('Atualizado');
+        } catch (error) {
+            res.status(500).send({ error: error.message });
+        }
+    };
+
+    static async finishCheckout(req, res) {
+        try {
+            const colunas = Object.keys(req.body[0]);
+            const valores = Object.values(req.body[0]);
+
+            const { id } = req.params;
+
+            const [existe] = await checkoutsServices.selectWhere("ID", `id = ${id}`);
+            if (existe === undefined) throw new Error('Checkout com ID passado não existe');
+
+            await checkoutsServices.updateWithUser(req.dados.name, colunas, valores, `id = ${id}`);
             res.status(200).send('Atualizado');
         } catch (error) {
             res.status(500).send({ error: error.message });
