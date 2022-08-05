@@ -1,5 +1,5 @@
 const express = require('express')
-const { selectAllProfiles, selectByIdProfiles, insertProfiles, updateProfiles, deleteProfiles } = require('../controller')
+const ProfilesController = require('../controller/ProfilesController')
 const { insertProfileSchema } = require('../../validations/insertValidation')
 const { updateProfileSchema } = require('../../validations/updateValidation')
 const { validation } = require('../../middlewares/validationMiddleware')
@@ -7,10 +7,10 @@ const { validation } = require('../../middlewares/validationMiddleware')
 const ProfilesRouter = express.Router();
 
 ProfilesRouter
-    .get('/profiles', selectAllProfiles)
-    .get('/profiles/:id', selectByIdProfiles)
-    .post('/profiles', validation(insertProfileSchema), insertProfiles)
-    .patch('/profiles/:id', validation(updateProfileSchema), updateProfiles)
-    .delete('/profiles/:id', deleteProfiles)
+    .get('/profiles', ProfilesController.selectAllProfiles)
+    .get('/profiles/:id', ProfilesController.selectByIdProfiles)
+    .post('/profiles', validation(insertProfileSchema), ProfilesController.insertProfiles)
+    .patch('/profiles/:id', validation(updateProfileSchema), ProfilesController.updateProfiles)
+    .delete('/profiles/:id', ProfilesController.deleteProfiles)
 
 module.exports = ProfilesRouter
